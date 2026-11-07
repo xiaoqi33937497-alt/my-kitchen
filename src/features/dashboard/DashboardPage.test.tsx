@@ -29,6 +29,14 @@ describe('DashboardView', () => {
 
   it('links an empty kitchen to manual entry', () => {
     render(<DashboardView data={{ total: 0, zoneTotals: { fridge: 0, freezer: 0, pantry: 0 }, priority: [] }} />, { wrapper: MemoryRouter });
-    expect(screen.getByRole('link', { name: '手动添加' })).toHaveAttribute('href', '/inventory/new');
+    expect(screen.getAllByRole('link', { name: '手动添加' })).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: '手动添加' })[0]).toHaveAttribute('href', '/inventory/new');
+  });
+
+  it('renders the manual-add icon separately from its accessible label', () => {
+    render(<DashboardView data={{ total: 0, zoneTotals: { fridge: 0, freezer: 0, pantry: 0 }, priority: [] }} />, { wrapper: MemoryRouter });
+    const link = screen.getAllByRole('link', { name: '手动添加' }).find((element) => element.classList.contains('manual-add-action'))!;
+    expect(link).toHaveClass('manual-add-action');
+    expect(link.querySelector('.quick-action-icon')).toHaveAttribute('aria-hidden', 'true');
   });
 });

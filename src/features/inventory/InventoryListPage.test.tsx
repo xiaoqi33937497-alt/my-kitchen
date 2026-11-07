@@ -6,6 +6,13 @@ import { InventoryListView } from './InventoryListPage';
 
 const item = (id: string, name: string, storageZone: 'fridge'|'freezer') => ({ id, name, category: 'protein' as const, storageZone, purchasedAt: '2026-11-07', initialQuantity: 1, remainingQuantity: 1, unit: '个', status: 'active' as const, dateSource: 'estimate' as const, bestBeforeDate: '2026-11-09', createdAt: '', updatedAt: '' });
 describe('InventoryListView', () => {
+  it('exposes all three inventory filters with accessible labels', () => {
+    render(<InventoryListView items={[]} now={new Date('2026-11-07T04:00:00Z')} />, { wrapper: MemoryRouter });
+    expect(screen.getByLabelText('存放位置筛选')).toBeInTheDocument();
+    expect(screen.getByLabelText('分类筛选')).toBeInTheDocument();
+    expect(screen.getByLabelText('临期筛选')).toBeInTheDocument();
+  });
+
   it('filters inventory by storage zone', async () => {
     const user = userEvent.setup();
     render(<InventoryListView items={[item('a','鸡蛋','fridge'), item('b','冻肉','freezer')]} now={new Date('2026-11-07T04:00:00Z')} />, { wrapper: MemoryRouter });
