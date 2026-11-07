@@ -1,0 +1,2 @@
+import { defineConfig, devices } from '@playwright/test';
+export default defineConfig({ testDir: './tests/e2e', use: { baseURL: 'http://127.0.0.1:5173', ...devices['Pixel 5'] }, webServer: { command: 'C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/pnpm/bin/pnpm.cjs dev --host 127.0.0.1', url: 'http://127.0.0.1:5173', reuseExistingServer: true }, });
