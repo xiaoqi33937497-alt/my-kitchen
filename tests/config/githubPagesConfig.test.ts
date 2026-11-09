@@ -17,4 +17,11 @@ describe('GitHub Pages configuration', () => {
     expect(workflow).toContain('cp dist/index.html dist/404.html');
     expect(workflow).toContain('actions/deploy-pages@v4');
   });
+
+  it('injects and validates the public HTTPS receipt endpoint without a secret', () => {
+    const workflow = readFileSync('.github/workflows/deploy-pages.yml', 'utf8');
+    expect(workflow).toContain('VITE_RECEIPT_API_URL: ${{ vars.VITE_RECEIPT_API_URL }}');
+    expect(workflow).toContain('https://');
+    expect(workflow).not.toContain('ARK_API_KEY');
+  });
 });

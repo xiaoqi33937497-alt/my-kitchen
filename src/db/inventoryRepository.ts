@@ -5,6 +5,7 @@ export interface InventoryRepository {
   listActive(): Promise<InventoryItem[]>;
   get(id: string): Promise<InventoryItem | undefined>;
   create(input: NewInventoryItem): Promise<InventoryItem>;
+  createMany(inputs: NewInventoryItem[]): Promise<InventoryItem[]>;
   update(id: string, patch: Partial<InventoryItem>): Promise<InventoryItem>;
   addEvent(event: ConsumptionEvent): Promise<void>;
   replaceAll(snapshot: { items: InventoryItem[]; events: ConsumptionEvent[] }): Promise<void>;
@@ -25,6 +26,15 @@ export class DexieInventoryRepository implements InventoryRepository {
     const item: InventoryItem = { dateSource: 'none', status: 'active', createdAt: now, updatedAt: now, ...input };
     await this.db.inventory.add(item);
     return item;
+  }
+
+  async createMany(inputs: NewInventoryItem[]) {
+    const now = new Date().toISOString();
+    const items: InventoryItem[] = inputs.map((input) => ({ dateSource: 'none', status: 'active', createdAt: now, updatedAt: now, ...input }));
+    await this.db.transaction('rw', this.db.inventory, async () => {
+      await this.db.inventory.bulkAdd(items);
+    });
+    return items;
   }
 
   async update(id: string, patch: Partial<InventoryItem>) {

@@ -6,6 +6,7 @@ import { NewInventoryPage } from '../features/inventory/NewInventoryPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { EditInventoryPage } from '../features/inventory/EditInventoryPage';
+import { NewReceiptPage } from '../features/receipts/NewReceiptPage';
 
 function Placeholder({ title }: { title: string }) { return <section className="page"><h1>{title}</h1></section>; }
 
@@ -16,6 +17,7 @@ export function AppRoutes({ layout }: { layout: ReactElement }) {
     <Route path="inventory/new" element={<NewInventoryPage />} />
     <Route path="inventory/:id" element={<InventoryDetailPage />} />
     <Route path="inventory/:id/edit" element={<EditInventoryPage />} />
+    <Route path="receipts/new" element={<NewReceiptPage />} />
     <Route path="recipes" element={<Placeholder title="菜谱即将推出" />} />
     <Route path="settings" element={<SettingsPage />} />
   </Route></Routes>;

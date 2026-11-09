@@ -46,4 +46,27 @@ describe('InventoryService', () => {
     }
     expect((await service.getDashboard(new Date('2026-11-07T04:00:00Z'))).priority.map((entry) => entry.item.id)).toEqual(['past', 'today', 'one', 'two']);
   });
+
+  it('calculates shelf life for every item before atomically creating a batch', async () => {
+    const { repository, service } = setup();
+    const result = await service.createItems([
+      { id: 'eggs', name: '鸡蛋', category: 'protein', storageZone: 'fridge', purchasedAt: '2026-11-08', initialQuantity: 8, remainingQuantity: 8, unit: '个', packageExpiryDate: '2026-11-20' },
+      { id: 'spinach', name: '菠菜', category: 'vegetable', storageZone: 'fridge', purchasedAt: '2026-11-08', initialQuantity: 1, remainingQuantity: 1, unit: '把' },
+    ]);
+    expect(result[0]).toMatchObject({ id: 'eggs', referenceExpiryDate: '2026-11-20', dateSource: 'package' });
+    expect(result[1].referenceExpiryDate).toBeTruthy();
+    expect(await repository.listActive()).toHaveLength(2);
+  });
+
+  it('rejects an empty batch without writing inventory', async () => {
+    const { repository, service } = setup();
+    await expect(service.createItems([])).rejects.toThrow('至少');
+    expect(await repository.listActive()).toEqual([]);
+  });
+
+  it('rejects invalid dates and quantity precision before writing a batch', async () => {
+    const { repository, service } = setup();
+    await expect(service.createItems([{ id: 'bad', name: '坏数据', category: 'other', storageZone: 'pantry', purchasedAt: '2026-99-99', initialQuantity: 0.123, remainingQuantity: 0.123, unit: '件' }])).rejects.toThrow();
+    expect(await repository.listActive()).toEqual([]);
+  });
 });

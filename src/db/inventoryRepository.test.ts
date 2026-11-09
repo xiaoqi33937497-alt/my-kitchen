@@ -42,4 +42,25 @@ describe('DexieInventoryRepository', () => {
 
     expect((await reopened.listActive()).map((item) => item.id)).toEqual(['milk']);
   });
+
+  it('creates a batch atomically', async () => {
+    const { repository } = makeRepository();
+    const created = await repository.createMany([
+      { id: 'eggs', name: '鸡蛋', category: 'protein', storageZone: 'fridge', purchasedAt: '2026-11-08', initialQuantity: 8, remainingQuantity: 8, unit: '个' },
+      { id: 'milk', name: '牛奶', category: 'drink', storageZone: 'fridge', purchasedAt: '2026-11-08', initialQuantity: 1, remainingQuantity: 1, unit: '盒' },
+    ]);
+    expect(created.map((item) => item.id)).toEqual(['eggs', 'milk']);
+    expect(await repository.listActive()).toHaveLength(2);
+  });
+
+  it('rolls back the whole batch when bulkAdd hits a duplicate key', async () => {
+    const { repository } = makeRepository();
+    await repository.create({ id: 'existing', name: '苹果', category: 'fruit', storageZone: 'fridge', purchasedAt: '2026-11-08', initialQuantity: 1, remainingQuantity: 1, unit: '个' });
+    await expect(repository.createMany([
+      { id: 'new', name: '鸡蛋', category: 'protein', storageZone: 'fridge', purchasedAt: '2026-11-08', initialQuantity: 8, remainingQuantity: 8, unit: '个' },
+      { id: 'existing', name: '重复', category: 'other', storageZone: 'pantry', purchasedAt: '2026-11-08', initialQuantity: 1, remainingQuantity: 1, unit: '件' },
+    ])).rejects.toThrow();
+    expect(await repository.get('new')).toBeUndefined();
+    expect((await repository.listActive()).map((item) => item.id)).toEqual(['existing']);
+  });
 });

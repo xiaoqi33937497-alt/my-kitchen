@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:receipt-server": "pnpm --dir server/receipt-reader test",
+    "build:receipt-server": "pnpm --dir server/receipt-reader build",
+    "package:receipt-server": "pnpm --dir server/receipt-reader package",
+    "check:secrets": "node scripts/check-secrets.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

@@ -3,13 +3,29 @@ import { DexieInventoryRepository } from '../../db/inventoryRepository';
 import { calculateShelfLife, getUrgency, type Urgency } from '../shelfLife/calculate';
 
 const urgencyOrder: Record<Urgency, number> = { past: 0, today: 1, 'one-day': 2, 'two-days': 3, later: 4 };
+function isCalendarDate(value: string) { if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false; const [year, month, day] = value.split('-').map(Number); const date = new Date(Date.UTC(year, month - 1, day)); return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day; }
+function validateNewItem(input: NewInventoryItem) {
+  if (!isCalendarDate(input.purchasedAt) || (input.packageExpiryDate && !isCalendarDate(input.packageExpiryDate)) || (input.productionDate && !isCalendarDate(input.productionDate))) throw new Error('日期无效');
+  for (const quantity of [input.initialQuantity, input.remainingQuantity]) if (!Number.isFinite(quantity) || quantity <= 0 || Math.abs(quantity * 100 - Math.round(quantity * 100)) > 1e-8) throw new Error('数量必须大于 0 且最多支持两位小数');
+}
 
 export class InventoryService {
   constructor(private readonly repository: DexieInventoryRepository) {}
 
   async createItem(input: NewInventoryItem) {
+    validateNewItem(input);
     const shelf = calculateShelfLife(input, new Date());
     return this.repository.create({ ...input, bestBeforeDate: shelf.bestBeforeDate, referenceExpiryDate: shelf.expiryDate, dateSource: shelf.source === 'calculated-package' ? 'production-plus-duration' : shelf.source });
+  }
+
+  async createItems(inputs: NewInventoryItem[]) {
+    if (inputs.length === 0) throw new Error('至少需要一个库存项');
+    inputs.forEach(validateNewItem);
+    const prepared = inputs.map((input) => {
+      const shelf = calculateShelfLife(input, new Date());
+      return { ...input, bestBeforeDate: shelf.bestBeforeDate, referenceExpiryDate: shelf.expiryDate, dateSource: shelf.source === 'calculated-package' ? 'production-plus-duration' as const : shelf.source };
+    });
+    return this.repository.createMany(prepared);
   }
 
   async consume(id: string, amount: number) { return this.changeQuantity(id, amount, 'consumed'); }

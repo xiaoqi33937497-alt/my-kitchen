@@ -3,4 +3,7 @@ import 'fake-indexeddb/auto';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
+if (!URL.createObjectURL) URL.createObjectURL = () => 'blob:test';
+if (!URL.revokeObjectURL) URL.revokeObjectURL = () => {};
+
 afterEach(cleanup);

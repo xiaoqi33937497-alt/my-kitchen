@@ -1,9 +1,14 @@
 node_modules/
+.env
+.env.*
+!.env.example
 dist/
 coverage/
 playwright-report/
 test-results/
+server/receipt-reader/*.zip
 .superpowers/
+.worktrees/
 *.log
 *.tsbuildinfo
 vite.config.js

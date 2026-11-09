@@ -7,7 +7,7 @@ import { inventoryService } from '../../app/services';
 import { vi } from 'vitest';
 
 describe('DashboardView', () => {
-  it('shows priority items, zone totals and future feature labels', () => {
+  it('shows priority items, zone totals and only the remaining future feature label', () => {
     render(<DashboardView data={{ total: 2, zoneTotals: { fridge: 2, freezer: 0, pantry: 0 }, priority: [
       { item: { id: 'spinach', name: '菠菜', category: 'vegetable', storageZone: 'fridge', purchasedAt: '2026-11-05', initialQuantity: 1, remainingQuantity: 1, unit: '把', status: 'active', dateSource: 'estimate', createdAt: '', updatedAt: '' }, shelf: { bestBeforeDate: '2026-11-08', expiryDate: '2026-11-10', source: 'estimate', isReference: true }, urgency: 'today' },
     ] }} />, { wrapper: MemoryRouter });
@@ -15,7 +15,8 @@ describe('DashboardView', () => {
     expect(screen.getByText('今天最佳')).toBeInTheDocument();
     expect(screen.getByText('参考估算')).toBeInTheDocument();
     expect(screen.getByText('冷藏')).toBeInTheDocument();
-    expect(screen.getAllByText('下一阶段')).toHaveLength(2);
+    expect(screen.getAllByText('下一阶段')).toHaveLength(1);
+    expect(screen.getByRole('link', { name: '上传购物小票' })).toHaveAttribute('href', '/receipts/new');
   });
 
   it('refreshes urgency when the app becomes visible again', async () => {

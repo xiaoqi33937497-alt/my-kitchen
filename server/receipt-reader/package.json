@@ -1,0 +1,26 @@
+{
+  "name": "@my-kitchen/receipt-reader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json --noEmit && esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/server.cjs",
+    "smoke": "node scripts/smoke.mjs",
+    "package": "pnpm build && pnpm smoke && bestzip receipt-reader.zip dist package.json run.sh",
+    "start": "node dist/server.cjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "bestzip": "^2.2.1",
+    "esbuild": "^0.28.2",
+    "typescript": "latest",
+    "vitest": "latest"
+  },
+  "dependencies": {
+    "jpeg-js": "^0.4.4"
+  }
+}

@@ -1,0 +1,6 @@
+import { z } from 'zod';
+function isCalendarDate(value: string) { if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false; const [year, month, day] = value.split('-').map(Number); const date = new Date(Date.UTC(year, month - 1, day)); return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day; }
+const calendarDate = z.string().refine(isCalendarDate, '请选择有效日期');
+const hundredthQuantity = z.number().positive('数量必须大于 0').refine((value) => Math.abs(value * 100 - Math.round(value * 100)) < 1e-8, '数量最多支持两位小数');
+export const editableReceiptSchema = z.object({ receiptDate: calendarDate, merchantName: z.string().nullable(), warnings: z.array(z.string()), items: z.array(z.object({ draftId: z.string().min(1), name: z.string().trim().min(1, '商品名称不能为空'), category: z.enum(['vegetable', 'fruit', 'protein', 'drink', 'snack', 'staple', 'other']), storageZone: z.enum(['fridge', 'freezer', 'pantry']), quantity: hundredthQuantity, unit: z.string().trim().min(1, '单位不能为空'), packageExpiryDate: z.string().optional().refine((value) => !value || isCalendarDate(value), '请选择有效日期'), confidence: z.enum(['high', 'medium', 'low']) })).min(1, '至少保留一个商品') });
+export type EditableReceiptDraft = z.infer<typeof editableReceiptSchema>;
