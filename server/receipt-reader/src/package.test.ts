@@ -1,8 +1,11 @@
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const packageRoot = fileURLToPath(new URL('..', import.meta.url));
+const packageRoot = existsSync(resolve(process.cwd(), 'run.sh'))
+  ? process.cwd()
+  : resolve(process.cwd(), 'server/receipt-reader');
 
 describe('deployment package', () => {
   it('keeps the POSIX startup script free of carriage returns', async () => {

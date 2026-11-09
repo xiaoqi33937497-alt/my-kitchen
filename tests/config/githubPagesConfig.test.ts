@@ -20,7 +20,9 @@ describe('GitHub Pages configuration', () => {
 
   it('injects and validates the public HTTPS receipt endpoint without a secret', () => {
     const workflow = readFileSync('.github/workflows/deploy-pages.yml', 'utf8');
-    expect(workflow).toContain('VITE_RECEIPT_API_URL: ${{ vars.VITE_RECEIPT_API_URL }}');
+    expect(workflow).toContain(
+      'VITE_RECEIPT_API_URL: https://slfk9q6h8elii55q8bbuu.apigateway-cn-beijing.volceapi.com',
+    );
     expect(workflow).toContain('https://');
     expect(workflow).not.toContain('ARK_API_KEY');
   });
