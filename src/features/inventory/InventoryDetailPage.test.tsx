@@ -15,6 +15,8 @@ describe('InventoryDetailView', () => {
     render(<InventoryDetailView item={{ id: 'snack', name: '零食', category: 'snack', storageZone: 'pantry', purchasedAt: '2026-11-10', initialQuantity: 1, remainingQuantity: 1, unit: '件', weightGrams: 15, lineAmountCents: 350, receiptTotalCents: 1200, nutrition: { source: 'label', weightGrams: 15, totals: { caloriesKcal: 75, proteinGrams: 1.5, fatGrams: 3, carbohydrateGrams: 9, sodiumMilligrams: 120 }, per100g: { caloriesKcal: 500, proteinGrams: 10, fatGrams: 20, carbohydrateGrams: 60, sodiumMilligrams: 800 } }, dateSource: 'none', status: 'active', createdAt: '', updatedAt: '' }} onConsume={() => undefined} onDiscard={() => undefined} />, { wrapper: MemoryRouter });
     expect(screen.getByText('75')).toBeInTheDocument();
     expect(screen.getByText('¥3.50')).toBeInTheDocument();
+    expect(screen.queryByText('小票实付总额')).not.toBeInTheDocument();
+    expect(screen.queryByText('¥12.00')).not.toBeInTheDocument();
     expect(screen.queryByText('500')).not.toBeInTheDocument();
   });
 });
