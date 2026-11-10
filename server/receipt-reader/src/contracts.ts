@@ -1,4 +1,4 @@
-export const categories = ['vegetable', 'fruit', 'protein', 'drink', 'snack', 'staple', 'other'] as const;
+export const categories = ['vegetable', 'fruit', 'protein', 'dairy', 'dessert', 'drink', 'snack', 'staple', 'other'] as const;
 export const storageZones = ['fridge', 'freezer', 'pantry'] as const;
 export const confidenceLevels = ['high', 'medium', 'low'] as const;
 

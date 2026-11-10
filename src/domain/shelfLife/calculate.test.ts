@@ -17,6 +17,11 @@ describe('shelf-life calculations', () => {
     expect(calculateShelfLife({ ...base, storageZone: 'freezer' }, new Date()).expiryDate).toBe('2027-02-03');
   });
 
+  it('uses conservative refrigerated estimates for dairy and desserts', () => {
+    expect(calculateShelfLife({ ...base, name: '酸奶', category: 'dairy' }, new Date())).toMatchObject({ bestBeforeDate: '2026-11-12', expiryDate: '2026-11-19' });
+    expect(calculateShelfLife({ ...base, name: '蛋糕', category: 'dessert' }, new Date())).toMatchObject({ bestBeforeDate: '2026-11-08', expiryDate: '2026-11-10' });
+  });
+
   it('classifies urgency using the Asia/Shanghai calendar date around midnight', () => {
     const result = { bestBeforeDate: '2026-11-09', expiryDate: '2026-11-10', source: 'estimate' as const, isReference: true };
     expect(getUrgency(result, new Date('2026-11-07T15:59:59Z'))).toBe('two-days');

@@ -27,6 +27,8 @@ describe('getFoodEmoji', () => {
     ['drink', '🥤'],
     ['snack', '🍪'],
     ['staple', '🍚'],
+    ['dairy', '🥛'],
+    ['dessert', '🍰'],
     ['other', '🍽️'],
   ] as const)('falls back for category %s', (category, emoji) => {
     expect(getFoodEmoji('未识别食物', category)).toBe(emoji);

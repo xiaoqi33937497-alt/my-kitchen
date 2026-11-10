@@ -14,7 +14,7 @@ export function InventoryForm({ onSubmit, today, initial }: { onSubmit: (value: 
   }
   return <form className="inventory-form" onSubmit={submit}>
     <label>食材名称<input name="name" aria-label="食材名称" placeholder="例如：鸡蛋" defaultValue={initial?.name ?? ''} /></label>
-    <div className="form-grid"><label>分类<select name="category" defaultValue={initial?.category ?? 'other'}><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉蛋</option><option value="drink">饮品</option><option value="snack">零食</option><option value="staple">主食</option><option value="other">其他</option></select></label>
+    <div className="form-grid"><label>分类<select name="category" defaultValue={initial?.category ?? 'other'}><option value="vegetable">蔬菜</option><option value="fruit">水果</option><option value="protein">肉蛋</option><option value="dairy">乳制品</option><option value="dessert">甜品</option><option value="drink">饮品</option><option value="snack">零食</option><option value="staple">主食</option><option value="other">其他</option></select></label>
     <label>存放位置<select name="storageZone" defaultValue={initial?.storageZone ?? 'fridge'}><option value="fridge">冷藏</option><option value="freezer">冷冻</option><option value="pantry">常温</option></select></label></div>
     <div className="form-grid"><label>数量<input name="quantity" aria-label="数量" type="number" step="0.01" defaultValue={initial?.quantity ?? 1} /></label><label>单位<input name="unit" defaultValue={initial?.unit ?? '个'} /></label></div>
     <label>购买日期<input name="purchasedAt" type="date" defaultValue={initial?.purchasedAt ?? today} /></label>

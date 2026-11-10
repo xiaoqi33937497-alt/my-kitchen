@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { ProcessedReceiptImage, ReceiptApiDraft } from './contracts';
 
-const category = z.enum(['vegetable', 'fruit', 'protein', 'drink', 'snack', 'staple', 'other']);
+const category = z.enum(['vegetable', 'fruit', 'protein', 'dairy', 'dessert', 'drink', 'snack', 'staple', 'other']);
 const storageZone = z.enum(['fridge', 'freezer', 'pantry']);
 const receiptDraftSchema = z.object({
   receiptDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),

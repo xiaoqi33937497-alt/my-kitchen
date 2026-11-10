@@ -1,4 +1,4 @@
-export type InventoryCategory = 'vegetable' | 'fruit' | 'protein' | 'drink' | 'snack' | 'staple' | 'other';
+export type InventoryCategory = 'vegetable' | 'fruit' | 'protein' | 'dairy' | 'dessert' | 'drink' | 'snack' | 'staple' | 'other';
 export type StorageZone = 'fridge' | 'freezer' | 'pantry';
 export type InventoryStatus = 'active' | 'consumed' | 'discarded';
 export type DateSource = 'package' | 'production-plus-duration' | 'estimate' | 'none';

@@ -22,7 +22,7 @@ export async function callArk(input: AnalyzeReceiptRequest, deps: ArkDeps): Prom
         max_output_tokens: 2200,
         input: [{ role: 'user', content: [
           { type: 'input_image', image_url: `data:${input.image.mimeType};base64,${input.image.base64}` },
-          { type: 'input_text', text: '识别购物小票中的食品。仅返回 JSON：{"receiptDate":"YYYY-MM-DD或null","merchantName":"字符串或null","items":[{"name":"商品名","category":"vegetable|fruit|protein|drink|snack|staple|other","storageZone":"fridge|freezer|pantry","quantity":1,"unit":"件","packageExpiryDate":"YYYY-MM-DD可省略","confidence":"high|medium|low"}],"warnings":[]}。最多80项，不要Markdown。' },
+          { type: 'input_text', text: '识别购物小票中的食品。仅返回 JSON：{"receiptDate":"YYYY-MM-DD或null","merchantName":"字符串或null","items":[{"name":"商品名","category":"vegetable|fruit|protein|dairy|dessert|drink|snack|staple|other","storageZone":"fridge|freezer|pantry","quantity":1,"unit":"件","packageExpiryDate":"YYYY-MM-DD可省略","confidence":"high|medium|low"}],"warnings":[]}。乳制品使用 dairy，甜品使用 dessert。最多80项，不要Markdown。' },
         ] }],
       }),
     });

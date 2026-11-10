@@ -5,7 +5,7 @@ import { editableReceiptSchema, type EditableReceiptDraft } from './receiptDraft
 
 export function toEditableDraft(draft: ReceiptApiDraft, makeId: () => string = () => crypto.randomUUID()): EditableReceiptDraft { return { receiptDate: draft.receiptDate ?? '', merchantName: draft.merchantName, warnings: draft.warnings, items: draft.items.map((item) => ({ ...item, draftId: makeId() })) }; }
 export function toNewInventoryItems(draft: EditableReceiptDraft, fallbackDate: string, makeId: () => string = () => crypto.randomUUID()): NewInventoryItem[] { const purchasedAt = draft.receiptDate || fallbackDate; return draft.items.map(({ draftId: _, confidence: __, quantity, packageExpiryDate, ...item }) => ({ id: makeId(), ...item, ...(packageExpiryDate ? { packageExpiryDate } : {}), purchasedAt, initialQuantity: quantity, remainingQuantity: quantity })); }
-const categories = [['vegetable', '蔬菜'], ['fruit', '水果'], ['protein', '肉蛋'], ['drink', '饮品'], ['snack', '零食'], ['staple', '主食'], ['other', '其他']] as const;
+const categories = [['vegetable', '蔬菜'], ['fruit', '水果'], ['protein', '肉蛋'], ['dairy', '乳制品'], ['dessert', '甜品'], ['drink', '饮品'], ['snack', '零食'], ['staple', '主食'], ['other', '其他']] as const;
 const zones = [['fridge', '冷藏'], ['freezer', '冷冻'], ['pantry', '常温']] as const;
 
 export function ReceiptReviewForm({ initial, fallbackDate, onSave, onRetry }: { initial: EditableReceiptDraft; fallbackDate: string; onSave: (draft: EditableReceiptDraft) => Promise<void>; onRetry?: () => void }) {

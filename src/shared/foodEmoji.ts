@@ -35,6 +35,8 @@ const categoryEmoji: Record<InventoryCategory, string> = {
   vegetable: '🥬',
   fruit: '🍓',
   protein: '🥩',
+  dairy: '🥛',
+  dessert: '🍰',
   drink: '🥤',
   snack: '🍪',
   staple: '🍚',

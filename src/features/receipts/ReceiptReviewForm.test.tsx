@@ -10,6 +10,12 @@ const apiDraft = { receiptDate: '2026-11-07', merchantName: '超市', warnings: 
 ] };
 
 describe('ReceiptReviewForm', () => {
+  it('offers dairy and dessert categories for recognized items', () => {
+    render(<ReceiptReviewForm initial={toEditableDraft(apiDraft)} fallbackDate="2026-11-08" onSave={vi.fn()} />);
+    expect(screen.getAllByLabelText('分类')[0]).toHaveTextContent('乳制品');
+    expect(screen.getAllByLabelText('分类')[0]).toHaveTextContent('甜品');
+  });
+
   it('adds draft IDs and converts confirmed rows to inventory IDs', () => {
     const draft = toEditableDraft(apiDraft, () => 'draft-id');
     const items = toNewInventoryItems(draft, '2026-11-08', (() => { let i = 0; return () => `inventory-${++i}`; })());

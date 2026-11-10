@@ -4,6 +4,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { InventoryForm } from './InventoryForm';
 
 describe('InventoryForm', () => {
+  it('offers dairy and dessert categories', () => {
+    render(<InventoryForm onSubmit={vi.fn()} today="2026-11-07" />);
+    const category = screen.getByLabelText('分类');
+    expect(category).toHaveTextContent('乳制品');
+    expect(category).toHaveTextContent('甜品');
+  });
+
   it('requires a name and positive quantity before submitting', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
