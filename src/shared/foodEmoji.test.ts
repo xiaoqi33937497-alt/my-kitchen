@@ -21,6 +21,14 @@ describe('getFoodEmoji', () => {
   });
 
   it.each([
+    ['沃集鲜水牛奶蛋糕', 'dairy', '🍰'],
+    ['沃集鲜茉莉绝弦蛋白威化饼干', 'protein', '🍪'],
+    ['沃集鲜榛子巧克力威化饼干', 'snack', '🍪'],
+  ] as const)('prioritizes the complete food kind for %s', (name, category, emoji) => {
+    expect(getFoodEmoji(name, category)).toBe(emoji);
+  });
+
+  it.each([
     ['vegetable', '🥬'],
     ['fruit', '🍓'],
     ['protein', '🥩'],
