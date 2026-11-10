@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeReceipt, ReceiptParseError } from './normalizeReceipt.js';
+import { normalizeNutritionLabel, normalizeReceipt, ReceiptParseError } from './normalizeReceipt.js';
 
 const clientDate = '2026-11-08';
 
@@ -51,4 +51,16 @@ describe('normalizeReceipt', () => {
     expect(result.items[0].quantity).toBeGreaterThan(0);
     expect(result.warnings.join(' ')).toContain('数量');
   });
+
+  it('keeps weight, money, total and estimated nutrition when valid', () => {
+    const result = normalizeReceipt({ totalPaidCents: 1299.4, items: [{ name: '苹果', weightGrams: 352, lineAmountCents: 699, nutritionPer100g: { caloriesKcal: 52, proteinGrams: 0.3, fatGrams: 0.2, carbohydrateGrams: 14, sodiumMilligrams: 1 } }] }, clientDate);
+    expect(result.totalPaidCents).toBe(1299);
+    expect(result.items[0]).toMatchObject({ weightGrams: 352, lineAmountCents: 699, nutritionPer100g: { caloriesKcal: 52 } });
+  });
+
+  it('normalizes a nutrition label and rejects empty guesses', () => {
+    expect(normalizeNutritionLabel({ per100g: { caloriesKcal: 500, proteinGrams: 8, fatGrams: 20, carbohydrateGrams: 70, sodiumMilligrams: 300 }, warnings: [] }).per100g.caloriesKcal).toBe(500);
+    expect(() => normalizeNutritionLabel({ per100g: { caloriesKcal: 0, proteinGrams: 0, fatGrams: 0, carbohydrateGrams: 0, sodiumMilligrams: 0 } })).toThrow('无法确认');
+  });
 });
+

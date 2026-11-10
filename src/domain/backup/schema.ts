@@ -5,9 +5,10 @@ const calendarDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式无效
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }, '日期无效');
 const timestamp = z.string().datetime();
+const nutritionValues = z.object({ caloriesKcal: z.number().nonnegative(), proteinGrams: z.number().nonnegative(), fatGrams: z.number().nonnegative(), carbohydrateGrams: z.number().nonnegative(), sodiumMilligrams: z.number().nonnegative() });
 
 const inventoryItemSchema = z.object({
-  id: z.string().min(1), name: z.string().min(1), category: z.enum(['vegetable','fruit','protein','dairy','dessert','drink','snack','staple','other']), storageZone: z.enum(['fridge','freezer','pantry']), purchasedAt: calendarDate, initialQuantity: z.number().positive(), remainingQuantity: z.number().nonnegative(), unit: z.string().min(1), productionDate: calendarDate.optional(), packageExpiryDate: calendarDate.optional(), shelfLifeDays: z.number().int().positive().optional(), bestBeforeDate: calendarDate.optional(), referenceExpiryDate: calendarDate.optional(), dateSource: z.enum(['package','production-plus-duration','estimate','none']), status: z.enum(['active','consumed','discarded']), createdAt: timestamp, updatedAt: timestamp,
+  id: z.string().min(1), name: z.string().min(1), category: z.enum(['vegetable','fruit','protein','dairy','dessert','drink','snack','staple','other']), storageZone: z.enum(['fridge','freezer','pantry']), purchasedAt: calendarDate, initialQuantity: z.number().positive(), remainingQuantity: z.number().nonnegative(), unit: z.string().min(1), weightGrams: z.number().positive().optional(), lineAmountCents: z.number().int().nonnegative().optional(), receiptTotalCents: z.number().int().nonnegative().optional(), nutrition: z.object({ source: z.enum(['estimate','label']), weightGrams: z.number().positive(), totals: nutritionValues, per100g: nutritionValues.optional() }).optional(), productionDate: calendarDate.optional(), packageExpiryDate: calendarDate.optional(), shelfLifeDays: z.number().int().positive().optional(), bestBeforeDate: calendarDate.optional(), referenceExpiryDate: calendarDate.optional(), dateSource: z.enum(['package','production-plus-duration','estimate','none']), status: z.enum(['active','consumed','discarded']), createdAt: timestamp, updatedAt: timestamp,
 }).superRefine((item, context) => {
   if (item.remainingQuantity > item.initialQuantity) context.addIssue({ code: 'custom', message: '剩余数量不能超过初始数量' });
   if ((item.status === 'active') !== (item.remainingQuantity > 0)) context.addIssue({ code: 'custom', message: '库存状态与剩余数量不一致' });
@@ -25,3 +26,4 @@ export function validateBackup(value: unknown): BackupV1 {
   if (backup.events.some((event) => !known.has(event.inventoryItemId))) throw new Error('备份包含找不到库存项的事件');
   return backup;
 }
+

@@ -3,6 +3,9 @@ export type StorageZone = 'fridge' | 'freezer' | 'pantry';
 export type InventoryStatus = 'active' | 'consumed' | 'discarded';
 export type DateSource = 'package' | 'production-plus-duration' | 'estimate' | 'none';
 
+export interface NutritionValues { caloriesKcal: number; proteinGrams: number; fatGrams: number; carbohydrateGrams: number; sodiumMilligrams: number }
+export interface InventoryNutrition { source: 'estimate' | 'label'; weightGrams: number; totals: NutritionValues; per100g?: NutritionValues }
+
 export interface InventoryItem {
   id: string;
   name: string;
@@ -12,6 +15,10 @@ export interface InventoryItem {
   initialQuantity: number;
   remainingQuantity: number;
   unit: string;
+  weightGrams?: number;
+  lineAmountCents?: number;
+  receiptTotalCents?: number;
+  nutrition?: InventoryNutrition;
   productionDate?: string;
   packageExpiryDate?: string;
   shelfLifeDays?: number;
@@ -38,4 +45,5 @@ export interface LocalSettings {
   lastBackupAt?: string;
 }
 
-export type NewInventoryItem = Pick<InventoryItem, 'id' | 'name' | 'category' | 'storageZone' | 'purchasedAt' | 'initialQuantity' | 'remainingQuantity' | 'unit'> & Partial<Pick<InventoryItem, 'productionDate' | 'packageExpiryDate' | 'shelfLifeDays' | 'bestBeforeDate' | 'referenceExpiryDate' | 'dateSource' | 'status'>>;
+export type NewInventoryItem = Pick<InventoryItem, 'id' | 'name' | 'category' | 'storageZone' | 'purchasedAt' | 'initialQuantity' | 'remainingQuantity' | 'unit'> & Partial<Pick<InventoryItem, 'weightGrams' | 'lineAmountCents' | 'receiptTotalCents' | 'nutrition' | 'productionDate' | 'packageExpiryDate' | 'shelfLifeDays' | 'bestBeforeDate' | 'referenceExpiryDate' | 'dateSource' | 'status'>>;
+

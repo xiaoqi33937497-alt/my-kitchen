@@ -1,12 +1,14 @@
 import { z } from 'zod';
-import type { ProcessedReceiptImage, ReceiptApiDraft } from './contracts';
+import type { NutritionLabelResult, ProcessedReceiptImage, ReceiptApiDraft } from './contracts';
 
 const category = z.enum(['vegetable', 'fruit', 'protein', 'dairy', 'dessert', 'drink', 'snack', 'staple', 'other']);
 const storageZone = z.enum(['fridge', 'freezer', 'pantry']);
+const nutritionValues = z.object({ caloriesKcal: z.number().nonnegative(), proteinGrams: z.number().nonnegative(), fatGrams: z.number().nonnegative(), carbohydrateGrams: z.number().nonnegative(), sodiumMilligrams: z.number().nonnegative() });
 const receiptDraftSchema = z.object({
   receiptDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   merchantName: z.string().max(80).nullable(),
-  items: z.array(z.object({ name: z.string().trim().min(1).max(100), category, storageZone, quantity: z.number().positive(), unit: z.string().trim().min(1).max(20), packageExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), confidence: z.enum(['high', 'medium', 'low']) })).max(80),
+  totalPaidCents: z.number().int().nonnegative().optional(),
+  items: z.array(z.object({ name: z.string().trim().min(1).max(100), category, storageZone, quantity: z.number().positive(), unit: z.string().trim().min(1).max(20), weightGrams: z.number().positive().optional(), lineAmountCents: z.number().int().nonnegative().optional(), nutritionPer100g: nutritionValues.optional(), packageExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(), confidence: z.enum(['high', 'medium', 'low']) })).max(80),
   warnings: z.array(z.string().max(200)).max(20),
 });
 
@@ -38,4 +40,14 @@ export class ReceiptApi {
     try { return receiptDraftSchema.parse(await response.json()); }
     catch { throw new ReceiptApiError('识别结果格式异常，请重试'); }
   }
+
+  async analyzeNutritionLabel(image: ProcessedReceiptImage, signal?: AbortSignal): Promise<NutritionLabelResult> {
+    let response: Response;
+    try { response = await this.fetchImpl.call(globalThis, this.endpoint, { method: 'POST', signal, credentials: 'omit', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'nutrition-label', image: { mimeType: image.mimeType, base64: image.base64 } }) }); }
+    catch (error) { if (error instanceof DOMException && error.name === 'AbortError') throw error; throw new ReceiptApiError('网络连接失败，请检查网络后重试'); }
+    if (!response.ok) throw new ReceiptApiError(messages[response.status] ?? '营养成分识别失败，请稍后重试');
+    try { return z.object({ per100g: nutritionValues, warnings: z.array(z.string().max(200)).max(20) }).parse(await response.json()); }
+    catch { throw new ReceiptApiError('营养成分表无法确认，请重新拍摄'); }
+  }
 }
+

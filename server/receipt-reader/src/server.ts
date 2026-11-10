@@ -1,7 +1,7 @@
 import http, { type IncomingMessage, type ServerResponse } from 'node:http';
 import { callArk } from './arkClient.js';
 import type { AnalyzeReceiptRequest } from './contracts.js';
-import { normalizeReceipt, ReceiptParseError } from './normalizeReceipt.js';
+import { normalizeNutritionLabel, normalizeReceipt, ReceiptParseError } from './normalizeReceipt.js';
 import jpeg from 'jpeg-js';
 
 const MAX_BODY_BYTES = 6 * 1024 * 1024;
@@ -80,7 +80,8 @@ function validImageDimensions(buffer: Buffer, mimeType: string) {
 function validateRequest(value: unknown): AnalyzeReceiptRequest {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new HttpError(400, '请求格式错误');
   const source = value as Record<string, unknown>;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(source.clientDate ?? ''))) throw new HttpError(400, '日期格式错误');
+  const mode = source.mode === 'nutrition-label' ? 'nutrition-label' : 'receipt';
+  if (mode === 'receipt' && !/^\d{4}-\d{2}-\d{2}$/.test(String(source.clientDate ?? ''))) throw new HttpError(400, '日期格式错误');
   if (!source.image || typeof source.image !== 'object' || Array.isArray(source.image)) throw new HttpError(400, '缺少图片');
   const image = source.image as Record<string, unknown>;
   const mimeType = String(image.mimeType ?? '');
@@ -91,7 +92,7 @@ function validateRequest(value: unknown): AnalyzeReceiptRequest {
   if (bytes.length > MAX_IMAGE_BYTES) throw new HttpError(413, '图片过大');
   if (detectedMime(bytes) !== mimeType) throw new HttpError(415, '图片格式与内容不匹配');
   if (!validImageDimensions(bytes, mimeType)) throw new HttpError(415, '图片内容损坏或尺寸不符合要求');
-  return { image: { mimeType: mimeType as AnalyzeReceiptRequest['image']['mimeType'], base64 }, clientDate: String(source.clientDate) };
+  return { mode, image: { mimeType: mimeType as AnalyzeReceiptRequest['image']['mimeType'], base64 }, ...(mode === 'receipt' ? { clientDate: String(source.clientDate) } : {}) };
 }
 
 export function createServer(deps: ServerDeps = {}) {
@@ -118,7 +119,8 @@ export function createServer(deps: ServerDeps = {}) {
       try { body = JSON.parse(await readBody(request)); } catch (error) { if (error instanceof HttpError) throw error; throw new HttpError(400, 'JSON 格式错误'); }
       const input = validateRequest(body);
       const analyze = deps.analyze ?? ((value: AnalyzeReceiptRequest) => callArk(value, { apiKey: env.ARK_API_KEY!, modelId: env.ARK_MODEL_ID! }));
-      const draft = normalizeReceipt(await analyze(input), input.clientDate);
+      const raw = await analyze(input);
+      const draft = input.mode === 'nutrition-label' ? normalizeNutritionLabel(raw) : normalizeReceipt(raw, input.clientDate ?? '');
       json(response, 200, draft, allowedOrigin);
     } catch (error) {
       const status = error instanceof HttpError || (error && typeof error === 'object' && 'status' in error) ? Number((error as { status: number }).status) : error instanceof ReceiptParseError ? 502 : 502;
@@ -127,4 +129,5 @@ export function createServer(deps: ServerDeps = {}) {
     }
   });
 }
+
 
